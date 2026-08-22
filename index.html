@@ -78,52 +78,76 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <script>
-// On iOS the simulated mouse events arrive AFTER touchend, so a tap leaves every
-// hovered glass element stuck in its playful state. Release it on the way out.
+// iOS keeps the hover state on every element the finger passed over, and only sends
+// its mouse events once the finger has lifted. Collect them, then release once.
 document.addEventListener('DOMContentLoaded', function () {
-  var lastTouch = 0, timers = [];
+  var seen = [], lastTouch = 0, timer = null;
 
-  function release(el) {
-    var node = el;
-    while (node && node !== document.body) {
+  function remember(el) {
+    var node = el, depth = 0;
+    while (node && node !== document.body && depth < 4) {
+      if (seen.indexOf(node) < 0) seen.push(node);
+      node = node.parentElement;
+      depth++;
+    }
+  }
+
+  function releaseAll() {
+    timer = null;
+    var list = seen; seen = [];
+    for (var i = 0; i < list.length; i++) {
+      var node = list[i];
       ['pointerout', 'pointerleave', 'mouseout', 'mouseleave'].forEach(function (t) {
         node.dispatchEvent(new MouseEvent(t, {
           bubbles: t === 'pointerout' || t === 'mouseout',
           cancelable: true, view: window, relatedTarget: null
         }));
       });
-      if (node.blur) node.blur();
-      node = node.parentElement;
     }
+    var act = document.activeElement;
+    if (act && act !== document.body && act.blur) act.blur();
   }
 
-  function schedule(el) {
-    if (!el || el.nodeType !== 1) return;
-    [0, 80, 260, 600].forEach(function (ms) {
-      timers.push(setTimeout(function () { release(el); }, ms));
-    });
+  // one release, once everything has settled — no repeated bursts
+  function schedule() {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(releaseAll, 180);
   }
 
-  document.addEventListener('touchstart', function () {
-    timers.forEach(clearTimeout); timers = [];
+  function trackTouch(e) {
     lastTouch = Date.now();
+    for (var i = 0; i < e.touches.length; i++) {
+      var t = e.touches[i];
+      remember(document.elementFromPoint(t.clientX, t.clientY));
+    }
+    if (e.target) remember(e.target);
+  }
+
+  document.addEventListener('touchstart', function (e) {
+    if (timer) { clearTimeout(timer); timer = null; }
+    trackTouch(e);
   }, { passive: true, capture: true });
 
-  document.addEventListener('touchend', function (e) {
-    lastTouch = Date.now();
-    schedule(e.target);
-  }, { passive: true, capture: true });
+  document.addEventListener('touchmove', trackTouch, { passive: true, capture: true });
 
-  document.addEventListener('touchcancel', function (e) { schedule(e.target); }, { passive: true, capture: true });
-
-  // the hover actually lands here, just after the finger lifted
-  ['mouseover', 'mouseenter', 'mousemove', 'click'].forEach(function (t) {
-    document.addEventListener(t, function (e) {
-      if (Date.now() - lastTouch < 1200) schedule(e.target);
+  ['touchend', 'touchcancel'].forEach(function (name) {
+    document.addEventListener(name, function (e) {
+      lastTouch = Date.now();
+      if (e.target) remember(e.target);
+      if (e.changedTouches) for (var i = 0; i < e.changedTouches.length; i++) {
+        var c = e.changedTouches[i];
+        remember(document.elementFromPoint(c.clientX, c.clientY));
+      }
+      schedule();
     }, { passive: true, capture: true });
   });
 
-  document.addEventListener('scroll', function (e) { schedule(e.target); }, { passive: true, capture: true });
+  // the hover itself lands here, right after the finger lifted
+  ['pointerover', 'mouseover', 'mousemove', 'click'].forEach(function (name) {
+    document.addEventListener(name, function (e) {
+      if (Date.now() - lastTouch < 1400) { remember(e.target); schedule(); }
+    }, { passive: true, capture: true });
+  });
 });
 </script>
 </head>
