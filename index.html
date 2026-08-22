@@ -77,6 +77,30 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('touchcancel', release, { passive: true });
 });
 </script>
+<script>
+// iOS keeps a hover state on the last tapped element; release it when the finger lifts
+document.addEventListener('DOMContentLoaded', function () {
+  function release(el) {
+    while (el && el !== document.body) {
+      ['pointerout', 'pointerleave', 'mouseout', 'mouseleave'].forEach(function (t) {
+        el.dispatchEvent(new MouseEvent(t, { bubbles: t.indexOf('leave') < 0, cancelable: true, view: window }));
+      });
+      if (el.blur) el.blur();
+      el = el.parentElement;
+    }
+  }
+  var last = null;
+  document.addEventListener('touchstart', function (e) { last = e.target; }, { passive: true, capture: true });
+  function done(e) {
+    var t = (e.target && e.target.nodeType === 1) ? e.target : last;
+    if (t) release(t);
+    if (last && last !== t) release(last);
+    last = null;
+  }
+  document.addEventListener('touchend', done, { passive: true, capture: true });
+  document.addEventListener('touchcancel', done, { passive: true, capture: true });
+});
+</script>
 </head>
 <body>
 <x-dc>
