@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <x-dc>
 <helmet data-dc-atomics><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap"><style>
 html,body{margin:0;height:100%;overscroll-behavior:none}
-html{background:#e4e7f6}
+html{background:linear-gradient(to bottom, #cddffb 0%, #dfe7f8 45%, #f2daf4 100%);background-attachment:fixed}
 body{background:radial-gradient(120% 90% at 20% 0%, #eef1ff 0%, #e7e9f3 45%, #dfe2ee 100%);overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;letter-spacing:.015em;font-family:"Fredoka","Arial Rounded MT Bold",-apple-system,system-ui,sans-serif}
 @keyframes pop{0%{transform:scale(.94)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
@@ -257,9 +257,9 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
     <div style="position:relative;height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 34px) 20px calc(env(safe-area-inset-bottom) + 26px);box-sizing:border-box;animation:rise .35s ease">
       <button onClick="{{ goHome }}" style="align-self:flex-start;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">‹ Tillbaka</button>
 
-      <div style="flex:1;min-height:14px"></div>
+      <div style="flex:1;min-height:8px"></div>
 
-      <div style="position:relative;display:flex;flex-direction:column;gap:2px;border-radius:30px;padding:20px;background:rgba(255,255,255,.44);border:1px solid rgba(255,255,255,.78);backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);transition:transform .45s cubic-bezier(.175,.885,.32,2.2),box-shadow .45s cubic-bezier(.175,.885,.32,2.2);box-shadow:0 14px 40px rgba(31,25,64,.12),inset 2px 2px 1px 0 rgba(255,255,255,.8),inset -1px -1px 1px 1px rgba(255,255,255,.7)" style-hover="transform:scale(1.012);box-shadow:0 18px 46px rgba(31,25,64,.16), 0 0 32px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.95), inset -2px -2px 2px 1px rgba(255,255,255,.85)">
+      <div style="position:relative;display:flex;flex-direction:column;gap:2px;flex:0 1 auto;min-height:0;overflow-y:auto;border-radius:30px;padding:16px;background:rgba(255,255,255,.44);border:1px solid rgba(255,255,255,.78);backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);transition:transform .45s cubic-bezier(.175,.885,.32,2.2),box-shadow .45s cubic-bezier(.175,.885,.32,2.2);box-shadow:0 14px 40px rgba(31,25,64,.12),inset 2px 2px 1px 0 rgba(255,255,255,.8),inset -1px -1px 1px 1px rgba(255,255,255,.7)" style-hover="transform:scale(1.012);box-shadow:0 18px 46px rgba(31,25,64,.16), 0 0 32px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.95), inset -2px -2px 2px 1px rgba(255,255,255,.85)">
       <div style="position:relative;display:flex;align-items:center;gap:18px">
         <div style="position:relative;width:46px;height:46px;display:flex;align-items:center;justify-content:center">
           <sc-if value="{{ isAdd }}" hint-placeholder-val="{{ true }}"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="{{ accent }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M5 12h7m7 0h-7m0 0V5m0 7v7"></path></svg></sc-if>
@@ -277,23 +277,23 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
       <div style="flex:0;min-height:0"></div>
 
       <sc-if value="{{ isTableMode }}" hint-placeholder-val="{{ false }}">
-        <div style="font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(25,25,34,.42);margin:18px 0 12px;padding-top:16px;border-top:1px solid rgba(25,25,34,.08)">Vilken tabell?</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div style="font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(25,25,34,.42);margin:14px 0 10px;padding-top:12px;border-top:1px solid rgba(25,25,34,.08)">Vilken tabell?</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
           <sc-for list="{{ tableOptions }}" as="t" hint-placeholder-count="11">
-            <button onClick="{{ t.onPress }}" style="position:relative;height:62px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid rgba(255,255,255,.8);border-radius:22px;font-family:inherit;font-size:{{ t.size }};font-weight:500;cursor:pointer;backdrop-filter:blur({{ t.blur }}) saturate(180%);-webkit-backdrop-filter:blur({{ t.blur }}) saturate(180%);box-shadow:{{ t.shadow }};transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);grid-column:{{ t.span }};background:{{ t.bg }};color:{{ t.fg }}" style-hover="transform:scale(1.08);box-shadow:{{ t.shadowHover }}" style-active="transform:scale(.9)">{{ t.label }}</button>
+            <button onClick="{{ t.onPress }}" style="position:relative;height:54px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid rgba(255,255,255,.8);border-radius:18px;font-family:inherit;font-size:{{ t.size }};font-weight:500;cursor:pointer;backdrop-filter:blur({{ t.blur }}) saturate(180%);-webkit-backdrop-filter:blur({{ t.blur }}) saturate(180%);box-shadow:{{ t.shadow }};transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);grid-column:{{ t.span }};background:{{ t.bg }};color:{{ t.fg }}" style-hover="transform:scale(1.08);box-shadow:{{ t.shadowHover }}" style-active="transform:scale(.9)">{{ t.label }}</button>
           </sc-for>
         </div>
       </sc-if>
 
       <sc-if value="{{ isRangeMode }}" hint-placeholder-val="{{ true }}">
-      <div style="font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(25,25,34,.42);margin:18px 0 12px;padding-top:16px;border-top:1px solid rgba(25,25,34,.08)">Räkna upp till</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div style="font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(25,25,34,.42);margin:14px 0 10px;padding-top:12px;border-top:1px solid rgba(25,25,34,.08)">Räkna upp till</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
         <sc-for list="{{ rangeOptions }}" as="r" hint-placeholder-count="4">
-          <button onClick="{{ r.onPress }}" style="position:relative;height:62px;display:flex;align-items:center;justify-content:center;padding:0;grid-column:{{ r.span }};border:1px solid rgba(255,255,255,.8);border-radius:22px;font-family:inherit;font-size:{{ r.size }};font-weight:500;cursor:pointer;backdrop-filter:blur({{ r.blur }});-webkit-backdrop-filter:blur({{ r.blur }});box-shadow:{{ r.shadow }};transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);background:{{ r.bg }};color:{{ r.fg }}" style-hover="transform:scale(1.07);box-shadow:{{ r.shadowHover }}" style-active="transform:scale(.94)">{{ r.label }}</button>
+          <button onClick="{{ r.onPress }}" style="position:relative;height:54px;display:flex;align-items:center;justify-content:center;padding:0;grid-column:{{ r.span }};border:1px solid rgba(255,255,255,.8);border-radius:18px;font-family:inherit;font-size:{{ r.size }};font-weight:500;cursor:pointer;backdrop-filter:blur({{ r.blur }});-webkit-backdrop-filter:blur({{ r.blur }});box-shadow:{{ r.shadow }};transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);background:{{ r.bg }};color:{{ r.fg }}" style-hover="transform:scale(1.07);box-shadow:{{ r.shadowHover }}" style-active="transform:scale(.94)">{{ r.label }}</button>
         </sc-for>
       </div>
 
-      <div style="position:relative;margin-top:16px;padding-top:16px;border-top:1px solid rgba(25,25,34,.08)">
+      <div style="position:relative;margin-top:12px;padding-top:12px;border-top:1px solid rgba(25,25,34,.08)">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
           <div style="font-size:15px;font-weight:500">Egen gräns</div>
           <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ accent }}">{{ maxLabel }}</div>
@@ -529,8 +529,8 @@ class Component extends DCLogic {
     const tableMode = s.op === '×' || s.op === '÷';
     const tN = s.tableN;
     const tableOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-      .map(v => ({ label: String(v), v, span: 'auto', size: '26px' }))
-      .concat([{ label: 'Alla', v: 0, span: 'span 2', size: '18px' }])
+      .map(v => ({ label: String(v), v, span: 'auto', size: '22px' }))
+      .concat([{ label: 'Alla', v: 0, span: 'span 2', size: '16px' }])
       .map(o => ({
       label: o.label, span: o.span, size: o.size,
       bg: tN === o.v ? fill(accent) : glass, fg: tN === o.v ? '#fff' : '#191922',
@@ -538,13 +538,13 @@ class Component extends DCLogic {
       onPress: () => this.setState({ tableN: o.v, table: true })
     }));
     const canTable = s.op === '?';
-    const opts = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(v => ({ label: String(v), v, span: v === 100 ? 'span 3' : 'auto', size: v === 100 ? '22px' : '24px' }));
+    const opts = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(v => ({ label: String(v), v, span: v === 100 ? 'span 3' : 'auto', size: v === 100 ? '19px' : '21px' }));
     const rangeOptions = opts.map(o => {
       const on = !s.table && s.max !== null && s.max === o.v;
       return Object.assign({ label: o.label, span: o.span, size: o.size, bg: on ? fill(accent) : glass, fg: on ? '#fff' : '#191922', glassO: on ? 0 : 1, blur: on ? '0px' : '22px', onPress: () => this.setState({ max: o.v, table: false }) }, sh(on));
     });
     if (canTable) rangeOptions.push(Object.assign({
-      label: 'Tabell 1–10', span: 'span 3', size: '17px', bg: s.table ? fill(accent) : glass, fg: s.table ? '#fff' : '#191922', glassO: s.table ? 0 : 1, blur: s.table ? '0px' : '22px',
+      label: 'Tabell 1–10', span: 'span 3', size: '15px', bg: s.table ? fill(accent) : glass, fg: s.table ? '#fff' : '#191922', glassO: s.table ? 0 : 1, blur: s.table ? '0px' : '22px',
       onPress: () => this.setState({ table: true })
     }, sh(s.table)));
 
