@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <helmet data-dc-atomics><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap"><style>
 html,body{margin:0;height:100%;overscroll-behavior:none}
 html{background:linear-gradient(to bottom, #cddffb 0%, #dfe7f8 45%, #f2daf4 100%);background-attachment:fixed}
-body{background:radial-gradient(120% 90% at 20% 0%, #eef1ff 0%, #e7e9f3 45%, #dfe2ee 100%);overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;letter-spacing:.015em;font-family:"Fredoka","Arial Rounded MT Bold",-apple-system,system-ui,sans-serif}
+body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(120% 90% at 20% 0%, #eef1ff 0%, #e7e9f3 45%, #dfe2ee 100%);overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;letter-spacing:.015em;font-family:"Fredoka","Arial Rounded MT Bold",-apple-system,system-ui,sans-serif}
 @keyframes pop{0%{transform:scale(.94)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -96,7 +96,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12);box-shadow:0 4px 14px rgba(31,25,64,.3),0 0 20px rgba(255,255,255,.55),inset 3px 3px 2px 0 rgba(255,255,255,1),inset -2px -2px 2px 1px rgba(255,255,255,.9)}
 input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
 </style></helmet>
-<div style="position:fixed;inset:0;overflow:hidden">
+<div style="position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden">
 
 <svg width="0" height="0" style="position:absolute;pointer-events:none" aria-hidden="true">
   <filter id="glass-card" x="0%" y="0%" width="100%" height="100%">
@@ -259,7 +259,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
 
       <div style="flex:1;min-height:8px"></div>
 
-      <div style="position:relative;display:flex;flex-direction:column;gap:2px;flex:0 1 auto;min-height:0;overflow-y:auto;border-radius:30px;padding:16px;background:rgba(255,255,255,.44);border:1px solid rgba(255,255,255,.78);backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);transition:transform .45s cubic-bezier(.175,.885,.32,2.2),box-shadow .45s cubic-bezier(.175,.885,.32,2.2);box-shadow:0 14px 40px rgba(31,25,64,.12),inset 2px 2px 1px 0 rgba(255,255,255,.8),inset -1px -1px 1px 1px rgba(255,255,255,.7)" style-hover="transform:scale(1.012);box-shadow:0 18px 46px rgba(31,25,64,.16), 0 0 32px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.95), inset -2px -2px 2px 1px rgba(255,255,255,.85)">
+      <div style="position:relative;display:flex;flex-direction:column;gap:2px;flex:0 1 auto;min-height:0;border-radius:30px;padding:18px;background:rgba(255,255,255,.44);border:1px solid rgba(255,255,255,.78);backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);transition:transform .45s cubic-bezier(.175,.885,.32,2.2),box-shadow .45s cubic-bezier(.175,.885,.32,2.2);box-shadow:0 14px 40px rgba(31,25,64,.12),inset 2px 2px 1px 0 rgba(255,255,255,.8),inset -1px -1px 1px 1px rgba(255,255,255,.7)" style-hover="transform:scale(1.012);box-shadow:0 18px 46px rgba(31,25,64,.16), 0 0 32px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.95), inset -2px -2px 2px 1px rgba(255,255,255,.85)">
       <div style="position:relative;display:flex;align-items:center;gap:18px">
         <div style="position:relative;width:46px;height:46px;display:flex;align-items:center;justify-content:center">
           <sc-if value="{{ isAdd }}" hint-placeholder-val="{{ true }}"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="{{ accent }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M5 12h7m7 0h-7m0 0V5m0 7v7"></path></svg></sc-if>
@@ -295,7 +295,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
 
       <div style="position:relative;margin-top:12px;padding-top:12px;border-top:1px solid rgba(25,25,34,.08)">
         <div style="display:flex;justify-content:space-between;align-items:baseline">
-          <div style="font-size:15px;font-weight:500">Egen gräns</div>
+      
           <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ accent }}">{{ maxLabel }}</div>
         </div>
         <input type="range" min="5" max="100" step="1" value="{{ max }}" onChange="{{ onMax }}" style="width:100%;margin-top:10px;accent-color:{{ accent }}" />
