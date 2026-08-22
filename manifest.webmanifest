@@ -1,0 +1,30 @@
+{
+  "name": "Mattestund",
+  "short_name": "Mattestund",
+  "description": "Träna addition, subtraktion, multiplikation och division.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#e9ecf7",
+  "theme_color": "#e9ecf7",
+  "lang": "sv",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
