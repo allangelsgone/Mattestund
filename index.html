@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Mattestund</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#e6ebf9">
+<meta name="theme-color" content="#cfe3fa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -130,6 +130,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.touches.length !== 1) return;
     var t = e.touches[0];
     if (t.clientX > 32) return;
+    if (t.target || e.target) {
+      var el = e.target;
+      if (el && el.closest && el.closest('[data-slider],input,button')) return;
+    }
     target = backButton();
     root = document.getElementById('appRoot');
     if (!target || !root) return;
@@ -172,13 +176,23 @@ document.addEventListener('DOMContentLoaded', function () {
     active = false;
     if (frame) { cancelAnimationFrame(frame); frame = 0; }
     if (dx > W * 0.28) {
-      root.style.transition = 'transform .26s cubic-bezier(.32,.72,.3,1)';
+      root.style.transition = 'transform .24s cubic-bezier(.32,.72,.3,1), box-shadow .24s ease';
       root.style.transform = 'translate3d(' + W + 'px,0,0)';
       var btn = target;
       setTimeout(function () {
+        // still off canvas: swap the screen, park it to the left, then slide it in
         if (btn) btn.click();
-        clear();
-      }, 250);
+        root.style.transition = 'none';
+        root.style.transform = 'translate3d(' + (-W * 0.26) + 'px,0,0)';
+        root.style.boxShadow = 'none';
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            root.style.transition = 'transform .3s cubic-bezier(.22,1,.32,1)';
+            root.style.transform = 'translate3d(0,0,0)';
+            setTimeout(clear, 320);
+          });
+        });
+      }, 245);
     } else {
       root.style.transition = 'transform .34s cubic-bezier(.22,1,.32,1), box-shadow .34s ease';
       root.style.transform = 'translate3d(0,0,0)';
@@ -213,6 +227,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
    Kill the hover-only growth there; the press feedback (:active) stays. */
 /* Frosted bar behind the status area — the same trick native iOS apps use:
    the notch sits on a translucent material, so there is no colour to match. */
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:26px;z-index:55;pointer-events:none;background:linear-gradient(to bottom, #cfe3fa 0%, rgba(207,227,250,.55) 45%, rgba(207,227,250,0) 100%)}
 body::after{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);z-index:60;pointer-events:none;background:rgba(255,255,255,.42);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%);box-shadow:inset 0 -0.5px 0 rgba(255,255,255,.55)}
 @media (hover: none) and (pointer: coarse) {
   *:hover:not(:active) { transform: none !important; }
@@ -424,8 +439,8 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-
         </div>
         <div ref="{{ trackRef }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" data-slider="1" style="position:relative;height:38px;margin-top:10px;border-radius:99px;cursor:pointer;touch-action:none;overflow:hidden;background:rgba(255,255,255,.5);box-shadow:inset 0 2px 6px rgba(31,25,64,.15), inset 0 -1px 0 rgba(255,255,255,.8)">
           <div style="position:absolute;top:0;bottom:0;left:19px;right:19px;pointer-events:none">
-            <div style="position:absolute;top:0;bottom:0;left:-19px;border-radius:99px 0 0 99px;transition:width .07s linear;width:{{ fillWidth }};background:{{ accentFill }};box-shadow:inset 0 1.5px 0 rgba(255,255,255,.4)"></div>
-            <div style="position:absolute;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:99px;transition:left .07s linear;left:{{ sliderPct }}%;background:{{ accentFill }};box-shadow:inset 0 0 0 2.5px rgba(255,255,255,.92), inset 0 2px 0 rgba(255,255,255,.4), 0 2px 8px rgba(31,25,64,.22)"></div>
+            <div style="position:absolute;top:0;bottom:0;left:-19px;border-radius:99px 0 0 99px;width:{{ fillWidth }};background:{{ accentFill }};box-shadow:inset 0 1.5px 0 rgba(255,255,255,.4)"></div>
+            <div style="position:absolute;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:99px;left:{{ sliderPct }}%;background:{{ accentFill }};box-shadow:inset 0 0 0 2.5px rgba(255,255,255,.92), inset 0 2px 0 rgba(255,255,255,.4), 0 2px 8px rgba(31,25,64,.22)"></div>
           </div>
         </div>
       </div>
@@ -536,13 +551,23 @@ class Component extends DCLogic {
 
   trackRef = React.createRef();
 
-  setFromEvent = e => {
+  valueAt = clientX => {
     const el = this.trackRef.current;
-    if (!el) return;
+    if (!el) return null;
     const r = el.getBoundingClientRect();
     const pad = 19, span = Math.max(1, r.width - pad * 2);
-    const x = Math.min(Math.max(e.clientX - r.left - pad, 0), span);
-    this.setState({ max: Math.round(5 + (x / span) * 95), tableN: null, table: false });
+    const x = Math.min(Math.max(clientX - r.left - pad, 0), span);
+    return Math.round(5 + (x / span) * 95);
+  };
+
+  setFromEvent = e => {
+    this.pendingX = e.clientX;
+    if (this.dragFrame) return;
+    this.dragFrame = requestAnimationFrame(() => {
+      this.dragFrame = 0;
+      const v = this.valueAt(this.pendingX);
+      if (v !== null && v !== this.state.max) this.setState({ max: v, tableN: null, table: false });
+    });
   };
 
   dragStart = e => {
@@ -553,7 +578,14 @@ class Component extends DCLogic {
     this.setFromEvent(e);
   };
   dragMove = e => { if (this.dragging) this.setFromEvent(e); };
-  dragEnd = () => { this.dragging = false; };
+  dragEnd = e => {
+    this.dragging = false;
+    if (this.dragFrame) { cancelAnimationFrame(this.dragFrame); this.dragFrame = 0; }
+    if (e && e.clientX != null) {
+      const v = this.valueAt(e.clientX);
+      if (v !== null && v !== this.state.max) this.setState({ max: v, tableN: null, table: false });
+    }
+  };
 
   loadStats() {
     const base = { tal: 0, ratt: 0, direkt: 0, stjarnor: 0, omg: 0, byOp: {}, days: {} };
