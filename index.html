@@ -124,6 +124,12 @@ input[type=range]::-webkit-slider-runnable-track{height:10px;border-radius:99px;
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-9px;border-radius:99px;background:rgba(255,255,255,.82);backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(31,25,64,.28),inset 2px 2px 1px 0 rgba(255,255,255,.9),inset -1px -1px 1px 1px rgba(255,255,255,.8);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2)}
 input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12);box-shadow:0 4px 14px rgba(31,25,64,.3),0 0 20px rgba(255,255,255,.55),inset 3px 3px 2px 0 rgba(255,255,255,1),inset -2px -2px 2px 1px rgba(255,255,255,.9)}
 input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
+/* On a touch screen iOS leaves :hover on the last element the finger touched.
+   Kill the hover-only growth there; the press feedback (:active) stays. */
+@media (hover: none) and (pointer: coarse) {
+  *:hover:not(:active) { transform: none !important; }
+  input[type=range]:hover::-webkit-slider-thumb { transform: none !important; }
+}
 </style></helmet>
 <div style="position:fixed;top:-240px;left:-240px;right:-240px;bottom:-240px;z-index:0;pointer-events:none;background:radial-gradient(120% 90% at 20% 0%, #eef1ff 0%, #e7e9f3 45%, #dfe2ee 100%)">
   <div style="position:absolute;top:240px;left:240px;right:240px;bottom:240px">
