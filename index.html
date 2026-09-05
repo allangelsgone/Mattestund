@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Mattestund</title>
 <link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#e7ecfb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -46,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('touchstart', function (e) {
     if (e.touches.length !== 1) { pulling = false; return; }
     root = document.getElementById('appRoot');
-    pulling = !!root && scrollableAtTop(e.target);
+    var onControl = e.target && e.target.closest && e.target.closest('[data-slider],input,button');
+    pulling = !!root && !onControl && scrollableAtTop(e.target);
     startY = e.touches[0].clientY;
     raw = dist = 0;
     if (pulling) {
@@ -107,17 +109,75 @@ document.addEventListener('DOMContentLoaded', function () {
 })();
 </script>
 <script>
-// Safari (not the home-screen app) tints the area behind the dynamic island with
-// theme-color; without one it paints white. Set it only in the browser.
+// theme-color paints the area behind the notch in Safari, but would also colour the
+// home-screen app's translucent status bar — so drop it there.
 (function () {
-  var standalone = (window.navigator && window.navigator.standalone) ||
-    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-  if (standalone) return;
-  var m = document.createElement('meta');
-  m.name = 'theme-color';
-  m.content = '#e7ecfb';
-  document.head.appendChild(m);
+  function apply() {
+    var standalone = (window.navigator && window.navigator.standalone) ||
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (standalone && m) m.parentNode.removeChild(m);
+  }
+  apply();
+  document.addEventListener('DOMContentLoaded', apply);
 })();
+</script>
+<script>
+// Swipe from the left edge to go back, as in native iOS apps
+document.addEventListener('DOMContentLoaded', function () {
+  var active = false, x0 = 0, y0 = 0, dx = 0, target = null;
+
+  function backButton() {
+    var list = document.querySelectorAll('[data-back]');
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      if (el.offsetParent !== null) return el;
+    }
+    return null;
+  }
+
+  document.addEventListener('touchstart', function (e) {
+    active = false;
+    if (e.touches.length !== 1) return;
+    var t = e.touches[0];
+    if (t.clientX > 34) return;
+    target = backButton();
+    if (!target) return;
+    active = true; x0 = t.clientX; y0 = t.clientY; dx = 0;
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchmove', function (e) {
+    if (!active) return;
+    var t = e.touches[0];
+    dx = t.clientX - x0;
+    var dy = Math.abs(t.clientY - y0);
+    if (dy > 46 && dy > Math.abs(dx)) { active = false; reset(); return; }
+    if (dx <= 0) { dx = 0; reset(); return; }
+    var root = document.getElementById('appRoot');
+    if (root) {
+      root.style.transition = 'none';
+      root.style.transform = 'translate3d(' + Math.min(dx * 0.34, 46) + 'px,0,0)';
+    }
+  }, { passive: true, capture: true });
+
+  function reset(fade) {
+    var root = document.getElementById('appRoot');
+    if (!root) return;
+    root.style.transition = 'transform .34s cubic-bezier(.22,1,.32,1)';
+    root.style.transform = 'translate3d(0,0,0)';
+  }
+
+  function end() {
+    if (!active) return;
+    active = false;
+    var fire = dx > 62;
+    reset();
+    if (fire && target) target.click();
+    dx = 0; target = null;
+  }
+  document.addEventListener('touchend', end, { passive: true, capture: true });
+  document.addEventListener('touchcancel', end, { passive: true, capture: true });
+});
 </script>
 </head>
 <body>
@@ -295,7 +355,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
         </div>
       </sc-if>
       <div style="position:absolute;top:0;left:0;right:0;height:calc(env(safe-area-inset-top) + 96px);pointer-events:none;transition:opacity .35s ease;opacity:{{ scrimO }};background:linear-gradient(to bottom, rgba(246,247,252,.82) 0%, rgba(246,247,252,.55) 48%, rgba(246,247,252,0) 100%);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);mask-image:linear-gradient(to bottom, #000 0%, #000 46%, transparent 100%);-webkit-mask-image:linear-gradient(to bottom, #000 0%, #000 46%, transparent 100%)"></div>
-      <button onClick="{{ goHome }}" style="position:absolute;top:calc(env(safe-area-inset-top) + 30px);left:20px;z-index:4;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">
+      <button onClick="{{ goHome }}" data-back="1" style="position:absolute;top:calc(env(safe-area-inset-top) + 30px);left:20px;z-index:4;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#191922" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="m14 7l-5 5l5 5"></path></svg>Tillbaka</button>
       <div style="position:absolute;top:calc(env(safe-area-inset-top) + 96px);bottom:46px;right:7px;width:4px;pointer-events:none">
         <div style="width:100%;border-radius:99px;background:rgba(25,25,34,.3);transition:opacity .4s ease;height:{{ sbH }}px;transform:translateY({{ sbY }}px);opacity:{{ sbO }}"></div>
@@ -305,7 +365,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
 
   <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
     <div style="position:relative;height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 34px) 20px calc(env(safe-area-inset-bottom) + 26px);box-sizing:border-box;animation:rise .35s ease">
-      <button onClick="{{ goHome }}" style="align-self:flex-start;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">‹ Tillbaka</button>
+      <button onClick="{{ goHome }}" data-back="1" style="align-self:flex-start;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">‹ Tillbaka</button>
 
       <div style="flex:1;min-height:8px"></div>
 
@@ -347,7 +407,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
           <div style="font-size:14px;font-weight:500;color:rgba(25,25,34,.55)">Egen gräns</div>
           <div style="font-size:23px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ accent }}">{{ sliderVal }}</div>
         </div>
-        <div ref="{{ trackRef }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" style="position:relative;height:38px;margin-top:10px;border-radius:99px;cursor:pointer;touch-action:none;overflow:hidden;background:rgba(255,255,255,.5);box-shadow:inset 0 2px 6px rgba(31,25,64,.15), inset 0 -1px 0 rgba(255,255,255,.8)">
+        <div ref="{{ trackRef }}" onPointerDown="{{ dragStart }}" onPointerMove="{{ dragMove }}" onPointerUp="{{ dragEnd }}" onPointerCancel="{{ dragEnd }}" data-slider="1" style="position:relative;height:38px;margin-top:10px;border-radius:99px;cursor:pointer;touch-action:none;overflow:hidden;background:rgba(255,255,255,.5);box-shadow:inset 0 2px 6px rgba(31,25,64,.15), inset 0 -1px 0 rgba(255,255,255,.8)">
           <div style="position:absolute;top:0;bottom:0;left:19px;right:19px;pointer-events:none">
             <div style="position:absolute;top:0;bottom:0;left:-19px;border-radius:99px 0 0 99px;transition:width .07s linear;width:{{ fillWidth }};background:{{ accentFill }};box-shadow:inset 0 1.5px 0 rgba(255,255,255,.4)"></div>
             <div style="position:absolute;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:99px;transition:left .07s linear;left:{{ sliderPct }}%;background:{{ accentFill }};box-shadow:inset 0 0 0 2.5px rgba(255,255,255,.92), inset 0 2px 0 rgba(255,255,255,.4), 0 2px 8px rgba(31,25,64,.22)"></div>
@@ -369,7 +429,7 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
   <sc-if value="{{ isPlay }}" hint-placeholder-val="{{ false }}">
     <div style="position:relative;height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 30px) 16px calc(env(safe-area-inset-bottom) + 22px);box-sizing:border-box">
       <div style="display:flex;align-items:center;gap:12px;padding:0 4px">
-        <button onClick="{{ goHome }}" style="border:1px solid rgba(255,255,255,.75);border-radius:99px;width:36px;height:36px;font-family:inherit;font-size:17px;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:0;transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.1);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.92)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#191922" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="m14 7l-5 5l5 5"></path></svg></button>
+        <button onClick="{{ goHome }}" data-back="1" style="border:1px solid rgba(255,255,255,.75);border-radius:99px;width:36px;height:36px;font-family:inherit;font-size:17px;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:0;transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.1);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.92)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#191922" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="m14 7l-5 5l5 5"></path></svg></button>
         <div style="flex:1;display:flex;gap:5px">
           <sc-for list="{{ dots }}" as="d" hint-placeholder-count="10">
             <div style="flex:1;height:7px;border-radius:99px;transition:background .3s;background:{{ d.bg }}"></div>
