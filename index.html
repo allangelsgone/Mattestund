@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Mattestund</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#cfe3fa">
+<meta name="theme-color" content="#cddffb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -107,104 +107,6 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('DOMContentLoaded', apply);
 })();
 </script>
-<script>
-// Edge swipe back: the screen follows the finger and slides away on release
-document.addEventListener('DOMContentLoaded', function () {
-  var active = false, x0 = 0, y0 = 0, dx = 0, raw = 0, target = null, root = null, frame = 0, W = 1;
-
-  function backButton() {
-    var list = document.querySelectorAll('[data-back]');
-    for (var i = 0; i < list.length; i++) if (list[i].offsetParent !== null) return list[i];
-    return null;
-  }
-
-  function paint() {
-    frame = 0;
-    dx = Math.max(0, Math.min(raw, W));
-    root.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,0,0)';
-    root.style.boxShadow = '-14px 0 34px rgba(31,25,64,' + (0.22 * Math.min(1, dx / 120)).toFixed(3) + ')';
-  }
-
-  document.addEventListener('touchstart', function (e) {
-    active = false;
-    if (e.touches.length !== 1) return;
-    var t = e.touches[0];
-    if (t.clientX > 32) return;
-    if (t.target || e.target) {
-      var el = e.target;
-      if (el && el.closest && el.closest('[data-slider],input,button')) return;
-    }
-    target = backButton();
-    root = document.getElementById('appRoot');
-    if (!target || !root) return;
-    active = true; x0 = t.clientX; y0 = t.clientY; dx = raw = 0;
-    W = window.innerWidth || 390;
-    root.style.transition = 'none';
-    root.style.willChange = 'transform';
-  }, { passive: true, capture: true });
-
-  document.addEventListener('touchmove', function (e) {
-    if (!active) return;
-    var t = e.touches[0];
-    raw = t.clientX - x0;
-    var dy = Math.abs(t.clientY - y0);
-    if (dy > 48 && dy > Math.abs(raw)) { cancel(); return; }
-    if (!frame) frame = requestAnimationFrame(paint);
-  }, { passive: true, capture: true });
-
-  function clear() {
-    if (frame) { cancelAnimationFrame(frame); frame = 0; }
-    if (!root) return;
-    root.style.transition = '';
-    root.style.transform = '';
-    root.style.boxShadow = '';
-    root.style.willChange = '';
-  }
-
-  function cancel() {
-    active = false;
-    if (!root) return;
-    root.style.transition = 'transform .32s cubic-bezier(.22,1,.32,1), box-shadow .32s ease';
-    root.style.transform = 'translate3d(0,0,0)';
-    root.style.boxShadow = 'none';
-    setTimeout(clear, 340);
-    dx = raw = 0;
-  }
-
-  function end() {
-    if (!active) return;
-    active = false;
-    if (frame) { cancelAnimationFrame(frame); frame = 0; }
-    if (dx > W * 0.28) {
-      root.style.transition = 'transform .24s cubic-bezier(.32,.72,.3,1), box-shadow .24s ease';
-      root.style.transform = 'translate3d(' + W + 'px,0,0)';
-      var btn = target;
-      setTimeout(function () {
-        // still off canvas: swap the screen, park it to the left, then slide it in
-        if (btn) btn.click();
-        root.style.transition = 'none';
-        root.style.transform = 'translate3d(' + (-W * 0.26) + 'px,0,0)';
-        root.style.boxShadow = 'none';
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            root.style.transition = 'transform .3s cubic-bezier(.22,1,.32,1)';
-            root.style.transform = 'translate3d(0,0,0)';
-            setTimeout(clear, 320);
-          });
-        });
-      }, 245);
-    } else {
-      root.style.transition = 'transform .34s cubic-bezier(.22,1,.32,1), box-shadow .34s ease';
-      root.style.transform = 'translate3d(0,0,0)';
-      root.style.boxShadow = 'none';
-      setTimeout(clear, 360);
-    }
-    dx = raw = 0; target = null;
-  }
-  document.addEventListener('touchend', end, { passive: true, capture: true });
-  document.addEventListener('touchcancel', function () { cancel(); }, { passive: true, capture: true });
-});
-</script>
 </head>
 <body>
 <x-dc>
@@ -225,10 +127,6 @@ input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12);box-shadow:0
 input[type=range]:active::-webkit-slider-thumb{transform:scale(.94)}
 /* On a touch screen iOS leaves :hover on the last element the finger touched.
    Kill the hover-only growth there; the press feedback (:active) stays. */
-/* Frosted bar behind the status area — the same trick native iOS apps use:
-   the notch sits on a translucent material, so there is no colour to match. */
-body::before{content:'';position:fixed;top:0;left:0;right:0;height:26px;z-index:55;pointer-events:none;background:linear-gradient(to bottom, #cfe3fa 0%, rgba(207,227,250,.55) 45%, rgba(207,227,250,0) 100%)}
-body::after{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);z-index:60;pointer-events:none;background:rgba(255,255,255,.42);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%);box-shadow:inset 0 -0.5px 0 rgba(255,255,255,.55)}
 @media (hover: none) and (pointer: coarse) {
   *:hover:not(:active) { transform: none !important; }
   input[type=range]:hover::-webkit-slider-thumb { transform: none !important; }
@@ -385,7 +283,7 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-
         </div>
       </sc-if>
       <div style="position:absolute;top:0;left:0;right:0;height:calc(env(safe-area-inset-top) + 96px);pointer-events:none;transition:opacity .35s ease;opacity:{{ scrimO }};background:linear-gradient(to bottom, rgba(246,247,252,.82) 0%, rgba(246,247,252,.55) 48%, rgba(246,247,252,0) 100%);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);mask-image:linear-gradient(to bottom, #000 0%, #000 46%, transparent 100%);-webkit-mask-image:linear-gradient(to bottom, #000 0%, #000 46%, transparent 100%)"></div>
-      <button onClick="{{ goHome }}" data-back="1" style="position:absolute;top:calc(env(safe-area-inset-top) + 30px);left:20px;z-index:4;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">
+      <button onClick="{{ goHome }}" style="position:absolute;top:calc(env(safe-area-inset-top) + 30px);left:20px;z-index:4;display:flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#191922" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="m14 7l-5 5l5 5"></path></svg>Tillbaka</button>
       <div style="position:absolute;top:calc(env(safe-area-inset-top) + 96px);bottom:46px;right:7px;width:4px;pointer-events:none">
         <div style="width:100%;border-radius:99px;background:rgba(25,25,34,.3);transition:opacity .4s ease;height:{{ sbH }}px;transform:translateY({{ sbY }}px);opacity:{{ sbO }}"></div>
@@ -395,7 +293,7 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-
 
   <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
     <div style="position:relative;height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 34px) 20px calc(env(safe-area-inset-bottom) + 26px);box-sizing:border-box;animation:rise .35s ease">
-      <button onClick="{{ goHome }}" data-back="1" style="align-self:flex-start;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">‹ Tillbaka</button>
+      <button onClick="{{ goHome }}" style="align-self:flex-start;border:1px solid rgba(255,255,255,.75);border-radius:99px;padding:8px 16px 8px 12px;font-family:inherit;font-size:14px;font-weight:500;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.07);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.94)">‹ Tillbaka</button>
 
       <div style="flex:1;min-height:8px"></div>
 
@@ -459,7 +357,7 @@ body::after{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-
   <sc-if value="{{ isPlay }}" hint-placeholder-val="{{ false }}">
     <div style="position:relative;height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 30px) 16px calc(env(safe-area-inset-bottom) + 22px);box-sizing:border-box">
       <div style="display:flex;align-items:center;gap:12px;padding:0 4px">
-        <button onClick="{{ goHome }}" data-back="1" style="border:1px solid rgba(255,255,255,.75);border-radius:99px;width:36px;height:36px;font-family:inherit;font-size:17px;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:0;transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.1);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.92)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#191922" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="m14 7l-5 5l5 5"></path></svg></button>
+        <button onClick="{{ goHome }}" style="border:1px solid rgba(255,255,255,.75);border-radius:99px;width:36px;height:36px;font-family:inherit;font-size:17px;color:#191922;cursor:pointer;background:rgba(255,255,255,.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:0;transition:transform .4s cubic-bezier(.175,.885,.32,2.2),box-shadow .4s cubic-bezier(.175,.885,.32,2.2);box-shadow:inset 2px 2px 1px 0 rgba(255,255,255,.6), inset -1px -1px 1px 1px rgba(255,255,255,.55)" style-hover="transform:scale(1.1);box-shadow:0 8px 18px rgba(31,25,64,.14), 0 0 22px rgba(255,255,255,.4), inset 3px 3px 2px 0 rgba(255,255,255,.85), inset -2px -2px 2px 1px rgba(255,255,255,.8)" style-active="transform:scale(.92)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#191922" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="m14 7l-5 5l5 5"></path></svg></button>
         <div style="flex:1;display:flex;gap:5px">
           <sc-for list="{{ dots }}" as="d" hint-placeholder-count="10">
             <div style="flex:1;height:7px;border-radius:99px;transition:background .3s;background:{{ d.bg }}"></div>
